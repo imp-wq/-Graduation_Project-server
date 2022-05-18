@@ -15,9 +15,9 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'You need a password to create an account'],
         match: /(?=.*[a-zA-Z])(?=.*[0-9]+).*/,
-        select:false
+        select: false
     },
-    orders: [Order.schema],
+    orderIds: [mongoose.Schema.Types.ObjectId],
 });
 
 const User = mongoose.model('User', userSchema, 'User');

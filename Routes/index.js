@@ -2,13 +2,14 @@ const express = require('express');
 const router = express.Router();
 const UserController = require('../Controller');
 const Order = require('../CustomerService/BotAction');
-const { deliveryInfo, member } = require('../CleverService/MoreAction')
+const { deliveryInfo, member, updateOrderStatus, getDiscount } = require('../CleverService/MoreAction')
 
 // 更多的路由信息
 router.route('/deliveryInfo').get(deliveryInfo)
 router.route('/member').get(member)
-
-/***************************************************************************************************/
+router.route('/updateorderstatus').post(updateOrderStatus)
+router.route('/discount').get(getDiscount)
+    /***************************************************************************************************/
 
 //Verify User
 router
@@ -44,8 +45,8 @@ router
 router
     .route('/getOrder')
     .get(Order.fetchOneOrder)
-    .delete(Order.deleteOrder)
-    .put(Order.updateOrder)
+    // .delete(Order.deleteOrder)
+    // .put(Order.updateOrder)
 
 router
     .route('/getOrderNumber')

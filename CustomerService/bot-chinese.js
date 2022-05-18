@@ -1,9 +1,9 @@
 const axios = require('axios');
 
-exports.Bot = async (message, senderEmail ) => {
-    const {NlpManager, Language } = require('node-nlp');
+exports.Bot = async(message, senderEmail) => {
+    const { NlpManager, Language } = require('node-nlp');
 
-    const manager = new NlpManager ({ languages: 'zh', forceNER: true, nlu: { useNoneFeature: false }});
+    const manager = new NlpManager({ languages: 'zh', forceNER: true, nlu: { useNoneFeature: false } });
 
     //bye
     manager.addDocument('zh', '再见', 'greetings.bye');
@@ -18,14 +18,14 @@ exports.Bot = async (message, senderEmail ) => {
     manager.addDocument('zh', '待处理订单', 'getPendingOrders');
 
     //Inquire Completed orders
-    manager.addDocument('zh', '完成的订单','fetchCompletedOrders');
+    manager.addDocument('zh', '完成的订单', 'fetchCompletedOrders');
 
     //Add a schematic
     manager.addDocument('zh', '加图片', 'addSchematic');
 
     //create an order
     manager.addDocument('zh', '新订单', 'createOrder');
-    
+
     //cancel an order
     manager.addDocument('zh', '删除订单', 'deleteOrder');
 
@@ -36,7 +36,7 @@ exports.Bot = async (message, senderEmail ) => {
     manager.addDocument('zh', '看订单', 'viewOrder');
     manager.addDocument('zh', '开订单', 'viewOrder');
 
-   
+
 
     //response for added item
     manager.addDocument('zh', '好吧', 'addResponse');
@@ -58,52 +58,52 @@ exports.Bot = async (message, senderEmail ) => {
     manager.addAnswer('zh', 'addResponse', '👌')
 
     manager.addAnswer('zh', 'addSchematic', manager.getActions('addSchematicAction'));
-    manager.addAction('addSchematic', 'addSchematicAction', '', async () => {
-        let Orders = {
-            type: 'list',
-            list: [],
-        };
+    manager.addAction('addSchematic', 'addSchematicAction', '', async() => {
+            let Orders = {
+                type: 'list',
+                list: [],
+            };
 
-        await axios.get('http://localhost:5000/order', {
-            params: {
-                email: senderEmail,
-            }
-        })
-        .then (result => {
-            let myOrders = result.data.Orders.map( i => {
-                let listObject = {
-                    id: i._id,
-                    quantity: i.quantity,
-                    schematics: i.schematics,
-                    eta: i.estimatedTime,
-                    description: i.description,
-                    dimensions: i.dimensions,
-                    currentProcess: i.currentProcess,
-                    surface: i.surface,
-                    thickness:i.thickness,
-                    action: 'ADD_SCHEMATIC'
-                }
-                return listObject;
-            })
-            Orders.list = myOrders;
-        })
-        .catch(err => {
-            console.log(err);
-        })
+            await axios.get('http://localhost:5000/order', {
+                    params: {
+                        email: senderEmail,
+                    }
+                })
+                .then(result => {
+                    let myOrders = result.data.Orders.map(i => {
+                        let listObject = {
+                            id: i._id,
+                            quantity: i.quantity,
+                            schematics: i.schematics,
+                            eta: i.estimatedTime,
+                            description: i.description,
+                            dimensions: i.dimensions,
+                            currentProcess: i.currentProcess,
+                            surface: i.surface,
+                            thickness: i.thickness,
+                            action: 'ADD_SCHEMATIC'
+                        }
+                        return listObject;
+                    })
+                    Orders.list = myOrders;
+                })
+                .catch(err => {
+                    console.log(err);
+                })
 
-        Orders.length = Orders.list.length;
-        // if ( Orders.length > 1) {
-        //     Orders.text = `您有 ${Orders.length} 个订单: 您想删除哪一个`;
-        // } else if (Orders.length === 1 ) {
-        //     Orders.text = `您只有一个订单`;
-        // } else {
-        //     Orders.text = `您没有订单`;
-        // }
+            Orders.length = Orders.list.length;
+            // if ( Orders.length > 1) {
+            //     Orders.text = `您有 ${Orders.length} 个订单: 您想删除哪一个`;
+            // } else if (Orders.length === 1 ) {
+            //     Orders.text = `您只有一个订单`;
+            // } else {
+            //     Orders.text = `您没有订单`;
+            // }
 
-        Orders.text = "您要将原理图添加到哪个项目:"
-        return JSON.stringify(Orders);
-    })
-    //bye
+            Orders.text = "您要将原理图添加到哪个项目:"
+            return JSON.stringify(Orders);
+        })
+        //bye
     manager.addAnswer('zh', 'greetings.bye', '再见！');
 
     //greetings
@@ -114,116 +114,117 @@ exports.Bot = async (message, senderEmail ) => {
 
     //cancel an order
     manager.addAnswer('zh', 'deleteOrder', manager.getActions('deleteOrderAction'));
-    manager.addAction('deleteOrder', 'deleteOrderAction', '', async () => {
+    manager.addAction('deleteOrder', 'deleteOrderAction', '', async() => {
         let Orders = {
             type: 'list',
             list: [],
         };
 
         await axios.get('http://localhost:5000/order', {
-             params: {
-                 email: senderEmail
-             }
-         })
-         .then (result => {
-             let myOrders = result.data.Orders.map( i => {
- 
-                 let listObject = {
-                     id: i._id,
-                     quantity: i.quantity,
-                     schematics: i.schematics,
-                     eta: i.estimatedTime,
-                     description: i.description,
-                     dimensions: i.dimensions,
-                     currentProcess: i.currentProcess,
-                     action: 'Delete'
-                 }
-                 return listObject;
-             })
-             Orders.list = myOrders;
-         })
-         .catch( err => {
-             console.log(err);
-         })
- 
-         Orders.length = Orders.list.length;
-         if ( Orders.length > 1) {
-             Orders.text = `您有 ${Orders.length} 个订单`;
-         } else if (Orders.length === 1 ) {
-             Orders.text = `您只有一个订单`;
-         } else {
-             Orders.text = `您没有订单`;
-         }
- 
-         return JSON.stringify(Orders);
+                params: {
+                    email: senderEmail
+                }
+            })
+            .then(result => {
+                let myOrders = result.data.Orders.map(i => {
+
+                    let listObject = {
+                        id: i._id,
+                        quantity: i.quantity,
+                        schematics: i.schematics,
+                        eta: i.estimatedTime,
+                        description: i.description,
+                        dimensions: i.dimensions,
+                        currentProcess: i.currentProcess,
+                        action: 'Delete'
+                    }
+                    return listObject;
+                })
+                Orders.list = myOrders;
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+        Orders.length = Orders.list.length;
+        if (Orders.length > 1) {
+            Orders.text = `您有 ${Orders.length} 个订单`;
+        } else if (Orders.length === 1) {
+            Orders.text = `您只有一个订单`;
+        } else {
+            Orders.text = `您没有订单`;
+        }
+
+        return JSON.stringify(Orders);
     })
 
 
     //how many orders
     manager.addAnswer('en', 'orderNumber', manager.getActions('getOrderNumberAction'));
-    manager.addAction('orderNumber', 'getOrderNumberAction', '', async () => {
-         let numberOfOrders;
- 
-         await axios.get('http://localhost:5000/getOrderNumber', {
-             params: {
-                 email: senderEmail
-             }
-         }).then(result => {
-             console.log('tj debugging', result.data);
-             numberOfOrders = result.data.OrderNumber
-         })
-         .catch(err => {
-             console.log(err);
-         })
-         return `您一共有 ${numberOfOrders} 个订单。`;
-     })
+    manager.addAction('orderNumber', 'getOrderNumberAction', '', async() => {
+        let numberOfOrders;
+
+        await axios.get('http://localhost:5000/getOrderNumber', {
+                params: {
+                    email: senderEmail
+                }
+            }).then(result => {
+                // console.log('tj debugging', result.data);
+                numberOfOrders = result.data.OrderNumber
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        return `您一共有 ${numberOfOrders} 个订单。`;
+    })
 
     //date
     manager.addAnswer('zh', 'fetchDate', manager.getActions());
-    manager.addAction('fetchDate', 'fetchDate', '', async () => {
+    manager.addAction('fetchDate', 'fetchDate', '', async() => {
         const date1 = new Date();
-        return manager.addAnswer('zh', 'fetchDate', `今天是 ${date1.getMonth()} 月 ${date1.getDay()} 号` );
+        return manager.addAnswer('zh', 'fetchDate', `今天是 ${date1.getMonth()} 月 ${date1.getDay()} 号`);
     })
 
     //view orders
     manager.addAnswer('zh', 'viewOrder', manager.getActions('viewOrderAction'));
-    manager.addAction('viewOrder', 'viewOrderAction', '', async () => {
+    manager.addAction('viewOrder', 'viewOrderAction', '', async() => {
         let Orders = {
             type: 'list',
             list: [],
         };
 
         await axios.get('http://localhost:5000/order', {
-            params: {
-                email: senderEmail
-            }
-        })
-        .then (result => {
-            let myOrders = result.data.Orders.map( i => {
-                let listObject = {
-                    id: i._id,
-                    quantity: i.quantity,
-                    schematics: i.schematics,
-                    eta: i.estimatedTime,
-                    description: i.description,
-                    dimensions: i.dimensions,
-                    currentProcess: i.currentProcess,
-                    surface: i.surface,
-                    thickness: i.thickness,
-                    action: 'View'
+                params: {
+                    email: senderEmail
                 }
-                return listObject;
             })
-            Orders.list = myOrders;
-        })
-        .catch(err => {
-            console.log(err);
-        })
+            .then(result => {
+                let myOrders = result.data.Orders.map(i => {
+                    let listObject = {
+                        ...i,
+                        id: i._id,
+                        quantity: i.quantity,
+                        schematics: i.schematics,
+                        // eta: i.estimatedTime,
+                        description: i.description,
+                        dimensions: i.dimensions,
+                        // currentProcess: i.currentProcess,
+                        surface: i.surface,
+                        thickness: i.thickness,
+                        action: 'View'
+                    }
+                    return listObject;
+                })
+                Orders.list = myOrders;
+            })
+            .catch(err => {
+                console.log(err);
+            })
 
         Orders.length = Orders.list.length;
-        if ( Orders.length > 1) {
+        if (Orders.length > 1) {
             Orders.text = `您有 ${Orders.length} 个订单，想看哪一个？`;
-        } else if (Orders.length === 1 ) {
+        } else if (Orders.length === 1) {
             Orders.text = `您只有一个订单`;
         } else {
             Orders.text = `您没有订单`;
@@ -232,27 +233,26 @@ exports.Bot = async (message, senderEmail ) => {
         return JSON.stringify(Orders);
 
     })
-    
+
 
     //change order attempt
     manager.addAnswer('zh', 'changeOrderAttempt', manager.getActions('changeOrderAttemptAction'));
-    manager.addAction('changeOrderAttempt', 'changeOrderAttemptAction', '', async () => {
+    manager.addAction('changeOrderAttempt', 'changeOrderAttemptAction', '', async() => {
         let Response = {
-            type: 'list', 
-            list: [
-                    {
-                        text:'创建一个新订单',
-                        action: 'Suggest'
-                    }, 
-                    {
-                        text: '查看所有订单',
-                        action: 'Suggest',
-                    },
-                    {
-                        text: '删除订单',
-                        action: 'Suggest'
-                    }
-                ],
+            type: 'list',
+            list: [{
+                    text: '创建一个新订单',
+                    action: 'Suggest'
+                },
+                {
+                    text: '查看所有订单',
+                    action: 'Suggest',
+                },
+                {
+                    text: '删除订单',
+                    action: 'Suggest'
+                }
+            ],
             text: "不幸的是，一旦订单被处理，您将无法编辑。但是，您可以执行以下任一操作： "
         }
 
@@ -261,7 +261,7 @@ exports.Bot = async (message, senderEmail ) => {
 
     //Pending Orders
     manager.addAnswer('zh', 'getPendingOrders', manager.getActions('getPendingOrdersAction'));
-    manager.addAction('getPendingOrders', 'getPendingOrdersAction', '', async () => {
+    manager.addAction('getPendingOrders', 'getPendingOrdersAction', '', async() => {
         let PendingOrders = {
             type: 'list',
             list: [],
@@ -272,23 +272,25 @@ exports.Bot = async (message, senderEmail ) => {
                 email: senderEmail
             }
         }).then(result => {
-            const { data: {Orders} } = result;
+            const { data: { Orders } } = result;
 
             Orders.forEach(i => {
                 i.action = "View";
-                i.currentProcess !== "Ready for collection" ? PendingOrders.list.push(i) : null;
+                // i.currentProcess !== "Ready for collection" ? PendingOrders.list.push(i) : null;
+                if (i.status === '待付款' || i.status === '已发货') PendingOrders.list.push(i)
+                    // console.log(PendingOrders)
             });
 
         }).catch(err => {
             console.log(err);
         })
-        
-        return PendingOrders.list.length === 0 ? "您没有待处理的订单": JSON.stringify(PendingOrders);
+
+        return PendingOrders.list.length === 0 ? "您没有待处理的订单" : JSON.stringify(PendingOrders);
     });
 
     //completed Orders
     manager.addAnswer('zh', 'fetchCompletedOrders', manager.getActions('fetchCompletedOrdersAction'));
-    manager.addAction('fetchCompletedOrders', 'fetchCompletedOrders', '', async () => {
+    manager.addAction('fetchCompletedOrders', 'fetchCompletedOrders', '', async() => {
         let CompletedOrders = {
             type: 'list',
             list: [],
@@ -299,16 +301,17 @@ exports.Bot = async (message, senderEmail ) => {
                 email: senderEmail
             }
         }).then(result => {
-            const { data: {Orders} } = result;
+            const { data: { Orders } } = result;
 
             Orders.forEach(i => {
                 i.action = "View";
-                i.currentProcess === "Ready for collection" ? CompletedOrders.list.push(i) : null;
+                if (i.status === '已完成' || i.status === '已退货') CompletedOrders.list.push(i)
+                    // i.currentProcess === "Ready for collection" ? CompletedOrders.list.push(i) : null;
             });
         }).catch(err => {
             console.log(err);
         })
-        
+
         return CompletedOrders.list.length === 0 ? "您没有完成的订单" : JSON.stringify(CompletedOrders);
     })
 

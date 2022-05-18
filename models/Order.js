@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const OrderSchema = mongoose.Schema({
-    estimatedTime: String,
     dimensions: {
         width: Number,
         height: Number,
@@ -10,10 +9,10 @@ const OrderSchema = mongoose.Schema({
         type: Number,
         required: [true, 'How much do you want us to make']
     },
-    currentProcess: {
+    status: {
         type: String,
-        enum: ['Processing...', 'Process A', 'Process B', 'Process C', 'Process D', 'Ready for collection']
-            // enum: ['待付款','已付款', '生产中', '已发货', '已收货', '已退货']
+        // enum: ['Processing...', 'Process A', 'Process B', 'Process C', 'Process D', 'Ready for collection']
+        enum: ['待付款', '已付款', '生产中', '已发货', '已收货', '已退货']
     },
     surface: {
         type: String,
@@ -26,6 +25,34 @@ const OrderSchema = mongoose.Schema({
     },
     schematics: {
         type: Array,
+    },
+
+    // 新增字段
+    originalPrice: {
+        type: Number,
+        required: true
+    },
+    actualPrice: {
+        type: Number,
+        required: true
+    },
+    updatedTime: {
+        type: Date
+    },
+    deliveryOrderID: {
+        type: String,
+        default: ''
+    },
+    deliveryCompany: {
+        type: String,
+        default: ''
+    },
+    deliveryCurrentLocation: {
+        type: String,
+    },
+    refundReason: {
+        type: String,
+        default: ''
     }
 });
 

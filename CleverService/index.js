@@ -1,33 +1,43 @@
 const axios = require('axios')
 
+const emitMessage = ({ messages, io, unread }, sendMessage) => {
+    unread[unread.length - 1].PYmessage = sendMessage
+    messages[messages.length - 1].PYmessage = sendMessage
+    io.emit('unread-server', unread)
+    io.emit('message-server', messages)
+}
+
 const action = ({ message, messages, io, unread }) => {
     let isMatch = true
-    if (message === '物流') {
-        unread[unread.length - 1].PYmessage = 'deliveryInfo'
-        messages[messages.length - 1].PYmessage = 'deliveryInfo'
-        io.emit('unread-server', unread)
-        io.emit('message-server', messages)
-    } else if (message === '订单') {
-        unread[unread.length - 1].PYmessage = 'Orders'
-        messages[messages.length - 1].PYmessage = 'Orders'
-        io.emit('unread-server', unread)
-        io.emit('message-server', messages)
-    } else if (message === '会员') {
-        unread[unread.length - 1].PYmessage = 'Member'
-        messages[messages.length - 1].PYmessage = 'Member'
-        io.emit('unread-server', unread)
-        io.emit('message-server', messages)
-    } else if (message === '优惠') {
-        unread[unread.length - 1].PYmessage = 'Discount'
-        messages[messages.length - 1].PYmessage = 'Discount'
-        io.emit('unread-server', unread)
-        io.emit('message-server', messages)
-    } else if (message === '退货') {
-        unread[unread.length - 1].PYmessage = 'Cancel'
-        messages[messages.length - 1].PYmessage = 'Cancel'
-        io.emit('unread-server', unread)
-        io.emit('message-server', messages)
-    } else isMatch = false // 如果没匹配到，返回false
+    switch (message) {
+        case '物流':
+            {
+                emitMessage({ messages, io, unread }, 'deliveryInfo')
+                break
+            }
+        case '订单':
+            {
+                emitMessage({ messages, io, unread }, 'Orders')
+                break
+            }
+        case '会员':
+            {
+                emitMessage({ messages, io, unread }, 'Member')
+                break
+            }
+        case '优惠':
+            {
+                emitMessage({ messages, io, unread }, 'Discount')
+                break
+            }
+            // case '退货':
+            //     {
+            //         emitMessage({ messages, io, unread }, 'Cancel')
+            //         break
+            //     }
+        default:
+            isMatch = false
+    }
     return isMatch
 }
 
@@ -43,16 +53,8 @@ const main = ({ message, messages, io, unread }) => {
         console.log('python:', res)
         if (action({ message: res.data, messages, io, unread })) return
         else {
-            unread[unread.length - 1].PYmessage = 'Unmatched'
-            messages[messages.length - 1].PYmessage = 'Unmatched'
-            io.emit('unread-server', unread)
-            io.emit('message-server', messages)
+            emitMessage({ messages, io, unread }, 'Unmatched')
         }
-
-        // unread[unread.length - 1].PYmessage = res.data
-        // messages[messages.length - 1].PYmessage = res.data
-        // io.emit('unread-server', unread)
-        // io.emit('message-server', messages)
     })
 }
 

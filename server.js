@@ -126,7 +126,7 @@ mongoose.connect('mongodb://localhost:27017/fiberboard', { useNewUrlParser: true
 
             socket.on('message-client', ({ senderId, username, to, message, date, language }) => {
 
-                console.log({ senderId, username, to, message, date, language })
+                // console.log({ senderId, username, to, message, date, language })
 
                 unread.push({ senderId, to, username, message, date, system: false })
                 messages.push({ senderId, to, username, message, date, system: false })
@@ -154,8 +154,11 @@ mongoose.connect('mongodb://localhost:27017/fiberboard', { useNewUrlParser: true
                                 return socket.emit('DeleteOrder', 'bot-delete-order');
                             }
                             if (!result) {
-                                unread.push({ senderId: to, to: senderId, username: 'Customer Service', message: language === "Chinese" ? "不好意思， 我不明白" : "I'm sorry I don't quite understand. How may I help you?", date, system: false })
-                                messages.push({ senderId: to, to: senderId, username: 'Customer Service', message: language === "Chinese" ? "不好意思， 我不明白" : "I'm sorry I don't quite understand. How may I help you?", date, system: false })
+                                // unread.push({ senderId: to, to: senderId, username: 'Customer Service', message: language === "Chinese" ? "不好意思， 我不明白" : "I'm sorry I don't quite understand. How may I help you?", date, system: false })
+                                // messages.push({ senderId: to, to: senderId, username: 'Customer Service', message: language === "Chinese" ? "不好意思， 我不明白" : "I'm sorry I don't quite understand. How may I help you?", date, system: false })
+
+                                unread.push({ senderId: to, to: senderId, username: 'Customer Service', message: {}, date, system: false })
+                                messages.push({ senderId: to, to: senderId, username: 'Customer Service', message: {}, date, system: false })
                             } else {
                                 unread.push({ senderId: to, to: senderId, username: 'Customer Service', message: result, date, system: false })
                                 messages.push({ senderId: to, to: senderId, username: 'Customer Service', message: result, date, system: false })

@@ -44,9 +44,20 @@ exports.fetchOrders = async(req, res) => {
         //get user
         const user = await User.findOne({ email });
 
-        let ordersList = null;
+        const ordersList = [];
 
-        if (user) ordersList = user.orders;
+        if (user) {
+            // console.log(user.orderIds)
+            for (const item of user.orderIds) {
+                const getOneOrder = await Order.findOne({ _id: item })
+                    // console.log(getOneOrder)
+                if (getOneOrder) {
+                    // console.log(getOneOrder)
+                    ordersList.push(getOneOrder)
+                }
+            }
+        }
+        // console.log(ordersList)
 
         for (let i = 0; i < ordersList.length; i++) {
 
@@ -125,31 +136,31 @@ exports.fetchOneOrder = async(req, res) => {
 
 
 
-exports.deleteOrder = async(req, res) => {
-    const { value, user } = req.body
+// exports.deleteOrder = async(req, res) => {
+//     const { value, user } = req.body
 
-    try {
-        const order = await User.findOneAndUpdate({ email: user });
-        await order.orders.pull(value);
+//     try {
+//         const order = await User.findOneAndUpdate({ email: user });
+//         await order.orders.pull(value);
 
-        order.save();
+//         order.save();
 
-        res.status(200).send()
-    } catch (err) {
-        console.log(err.message);
-        res.status(404).json({
-            status: 'fail',
-            message: err
-        })
-    }
-}
+//         res.status(200).send()
+//     } catch (err) {
+//         console.log(err.message);
+//         res.status(404).json({
+//             status: 'fail',
+//             message: err
+//         })
+//     }
+// }
 
 exports.postOrder = async(req, res) => {
     const { form, userEmail } = req.body
 
     try {
         let targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 14);
+        // targetDate.setDate(targetDate.getDate() + 14);
 
         let dd = targetDate.getDate();
         let mm = targetDate.getMonth() + 1; // 0 is January, so we must add 1
@@ -157,10 +168,10 @@ exports.postOrder = async(req, res) => {
 
         let dateString = dd + "/" + mm + "/" + yyyy;
 
-        const newOrder = await Order({...form, currentProcess: '待处理', estimatedTime: dateString });
+        const newOrder = await Order.create({...form });
         let activeUser = await User.findOneAndUpdate({ email: userEmail }, {
             $push: {
-                orders: newOrder
+                orderIds: newOrder._id
             }
         });
 
@@ -217,34 +228,34 @@ exports.uploadImage = async(req, res) => {
 }
 
 
-exports.updateOrder = async(req, res) => {
-    const { user, orderId, Process, language } = req.body.params;
+// exports.updateOrder = async(req, res) => {
+//     const { user, orderId, Process, language } = req.body.params;
 
-    try {
-        let onlineUser;
-        onlineUser = await User.findOneAndUpdate({ email: user, 'orders._id': orderId }, {
-            '$set': {
-                'orders.$.currentProcess': Process
-            }
-        });
+//     try {
+//         let onlineUser;
+//         onlineUser = await User.findOneAndUpdate({ email: user, 'orders._id': orderId }, {
+//             '$set': {
+//                 'orders.$.currentProcess': Process
+//             }
+//         });
 
-        onlineUser.save();
+//         onlineUser.save();
 
-        res.status(200).send({
-            status: 'success',
-            message: language === "English" ? `Status Update: your order(${orderId}) is now in ${Process}` : `状态更新：您的订单${orderID}正在${Process}中`,
-            orderId,
-            Process
-        });
+//         res.status(200).send({
+//             status: 'success',
+//             message: language === "English" ? `Status Update: your order(${orderId}) is now in ${Process}` : `状态更新：您的订单${orderID}正在${Process}中`,
+//             orderId,
+//             Process
+//         });
 
-    } catch (err) {
-        console.log(err.message);
-        res.status(404).json({
-            status: 'failed',
-            message: err.message
-        })
-    }
-}
+//     } catch (err) {
+//         console.log(err.message);
+//         res.status(404).json({
+//             status: 'failed',
+//             message: err.message
+//         })
+//     }
+// }
 
 exports.AddSchematics = async(req, res) => {
     const { email, projectId, schematics } = req.body.params;
